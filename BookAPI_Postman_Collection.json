@@ -1,0 +1,544 @@
+{
+	"info": {
+		"_postman_id": "bookapi-collection-2025",
+		"name": "BookAPI - Authors & Books",
+		"description": "Complete API collection for testing BookAPI endpoints including Authors and Books management with nested resources",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5207",
+			"type": "string"
+		},
+		{
+			"key": "authorId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "bookId",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authors API",
+			"item": [
+				{
+					"name": "Create Author",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"J.K. Rowling\",\n  \"bio\": \"British author best known for the Harry Potter series\",\n  \"dateOfBirth\": \"1965-07-31T00:00:00\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/authors",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors"
+							]
+						},
+						"description": "Create a new author with name, bio, and date of birth"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Authors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/authors",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors"
+							]
+						},
+						"description": "Retrieve all authors with their associated books"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Author By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/authors/{{authorId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors",
+								"{{authorId}}"
+							]
+						},
+						"description": "Retrieve a specific author by ID with their books"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Author",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1,\n  \"name\": \"J.K. Rowling\",\n  \"bio\": \"British author, philanthropist, and creator of the Harry Potter fantasy series\",\n  \"dateOfBirth\": \"1965-07-31T00:00:00\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/authors/{{authorId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors",
+								"{{authorId}}"
+							]
+						},
+						"description": "Update an existing author's information"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Author",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/authors/{{authorId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors",
+								"{{authorId}}"
+							]
+						},
+						"description": "Delete an author and all their associated books (cascade delete)"
+					},
+					"response": []
+				}
+			],
+			"description": "CRUD operations for Authors"
+		},
+		{
+			"name": "Author's Books API (Nested)",
+			"item": [
+				{
+					"name": "Create Book for Author",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Harry Potter and the Philosopher's Stone\",\n  \"publishDate\": \"1997-06-26T00:00:00\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/authors/{{authorId}}/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors",
+								"{{authorId}}",
+								"books"
+							]
+						},
+						"description": "Create a new book for a specific author"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Books for Author",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/authors/{{authorId}}/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors",
+								"{{authorId}}",
+								"books"
+							]
+						},
+						"description": "Retrieve all books for a specific author"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Specific Book for Author",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/authors/{{authorId}}/books/{{bookId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors",
+								"{{authorId}}",
+								"books",
+								"{{bookId}}"
+							]
+						},
+						"description": "Retrieve a specific book by ID for a specific author"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Book for Author",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1,\n  \"title\": \"Harry Potter and the Philosopher's Stone - Updated\",\n  \"publishDate\": \"1997-06-26T00:00:00\",\n  \"authorId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/authors/{{authorId}}/books/{{bookId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors",
+								"{{authorId}}",
+								"books",
+								"{{bookId}}"
+							]
+						},
+						"description": "Update a specific book for an author"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Book for Author",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/authors/{{authorId}}/books/{{bookId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors",
+								"{{authorId}}",
+								"books",
+								"{{bookId}}"
+							]
+						},
+						"description": "Delete a specific book for an author"
+					},
+					"response": []
+				}
+			],
+			"description": "Nested resource endpoints for managing books under specific authors"
+		},
+		{
+			"name": "Books API",
+			"item": [
+				{
+					"name": "Get All Books",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"books"
+							]
+						},
+						"description": "Retrieve all books with author information"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Book By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/books/{{bookId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"{{bookId}}"
+							]
+						},
+						"description": "Retrieve a specific book by ID with author information"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Book",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"1984\",\n  \"publishDate\": \"1949-06-08T00:00:00\",\n  \"authorId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"books"
+							]
+						},
+						"description": "Create a new book (requires a valid authorId)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Book",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1,\n  \"title\": \"1984 - Revised Edition\",\n  \"publishDate\": \"1949-06-08T00:00:00\",\n  \"authorId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/books/{{bookId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"{{bookId}}"
+							]
+						},
+						"description": "Update an existing book"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Book",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/books/{{bookId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"{{bookId}}"
+							]
+						},
+						"description": "Delete a book by ID"
+					},
+					"response": []
+				}
+			],
+			"description": "CRUD operations for Books with author relationships"
+		},
+		{
+			"name": "Test Scenarios",
+			"item": [
+				{
+					"name": "Scenario 1: Create Author (George Orwell)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"George Orwell\",\n  \"bio\": \"English novelist, essayist, journalist and critic\",\n  \"dateOfBirth\": \"1903-06-25T00:00:00\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/authors",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors"
+							]
+						},
+						"description": "Step 1: Create George Orwell as an author"
+					},
+					"response": []
+				},
+				{
+					"name": "Scenario 2: Add Book to Author",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Animal Farm\",\n  \"publishDate\": \"1945-08-17T00:00:00\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/authors/2/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors",
+								"2",
+								"books"
+							]
+						},
+						"description": "Step 2: Add Animal Farm to George Orwell (use ID from step 1)"
+					},
+					"response": []
+				},
+				{
+					"name": "Scenario 3: Create Another Author (Tolkien)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"J.R.R. Tolkien\",\n  \"bio\": \"English writer, poet, philologist, and academic\",\n  \"dateOfBirth\": \"1892-01-03T00:00:00\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/authors",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors"
+							]
+						},
+						"description": "Create J.R.R. Tolkien as another author"
+					},
+					"response": []
+				},
+				{
+					"name": "Scenario 4: Add Multiple Books",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"The Hobbit\",\n  \"publishDate\": \"1937-09-21T00:00:00\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/authors/3/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors",
+								"3",
+								"books"
+							]
+						},
+						"description": "Add The Hobbit to Tolkien (use ID from step 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Scenario 5: Get All Authors with Books",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/authors",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authors"
+							]
+						},
+						"description": "View all authors with their books"
+					},
+					"response": []
+				}
+			],
+			"description": "Complete test scenarios to demonstrate API functionality"
+		}
+	]
+}
