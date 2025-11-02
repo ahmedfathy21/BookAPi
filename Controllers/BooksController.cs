@@ -20,14 +20,19 @@ namespace BookApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
-            return await _context.Books.ToListAsync();
+            return await _context.Books
+                .Include(b => b.Author)
+                .ToListAsync();
         }
 
         // GET: api/books/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)
         {
-            var book = await _context.Books.FindAsync(id);
+            var book = await _context.Books
+                .Include(b => b.Author)
+                .FirstOrDefaultAsync(b => b.Id == id);
+            
             if (book == null)
                 return NotFound();
 
@@ -41,6 +46,11 @@ namespace BookApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // Verify that the author exists
+            var authorExists = await _context.Authors.AnyAsync(a => a.Id == book.AuthorId);
+            if (!authorExists)
+                return BadRequest(new { message = "Invalid AuthorId. Author does not exist." });
+
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
 
@@ -53,6 +63,11 @@ namespace BookApi.Controllers
         {
             if (id != book.Id)
                 return BadRequest("Book ID mismatch");
+
+            // Verify that the author exists
+            var authorExists = await _context.Authors.AnyAsync(a => a.Id == book.AuthorId);
+            if (!authorExists)
+                return BadRequest(new { message = "Invalid AuthorId. Author does not exist." });
 
             _context.Entry(book).State = EntityState.Modified;
 
