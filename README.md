@@ -4,10 +4,12 @@ A full-stack web application built with **ASP.NET Core 9.0** that combines a RES
 
 ## 🌟 Key Features
 
-- **RESTful API** - Complete CRUD operations for book management
+- **RESTful API** - Complete CRUD operations for books and authors management
+- **Author-Book Relationship** - One-to-many relationship with cascade delete
+- **Nested Resources** - Manage books under specific authors
 - **Blazor Server UI** - Interactive web interface with real-time updates
-- **Entity Framework Core** - Modern ORM for database operations
-- **MySQL Database** - Reliable data persistence
+- **Entity Framework Core** - Modern ORM with navigation properties
+- **MySQL Database** - Reliable data persistence with foreign key constraints
 - **Swagger/OpenAPI** - Interactive API documentation
 - **API Versioning Ready** - Structured for scalability
 
@@ -25,9 +27,11 @@ A full-stack web application built with **ASP.NET Core 9.0** that combines a RES
 ```
 BookApi/
 ├── Controllers/
-│   └── BooksController.cs          # RESTful API endpoints
+│   ├── BooksController.cs          # Books API endpoints
+│   └── AuthorsController.cs        # Authors API endpoints
 ├── Models/
-│   └── Book.cs                     # Book entity model
+│   ├── Book.cs                     # Book entity model
+│   └── Author.cs                   # Author entity model
 ├── Data/
 │   └── BookContext.cs              # Entity Framework DbContext
 ├── Migrations/                     # EF Core database migrations
@@ -36,29 +40,63 @@ BookApi/
 │   └── Layout/                     # Blazor layout components
 ├── wwwroot/                        # Static files
 ├── Program.cs                      # Application entry point
-└── appsettings.json               # Configuration
+├── appsettings.json               # Configuration
+├── README.md                       # Project documentation
+└── API_DOCUMENTATION.md           # Detailed API documentation
 ```
 
 ## 🚀 API Endpoints
+
+### Authors Controller (`/api/authors`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/authors` | Create a new author |
+| GET | `/api/authors` | Get all authors with their books |
+| GET | `/api/authors/{id}` | Get a specific author by ID |
+| PUT | `/api/authors/{id}` | Update an existing author |
+| DELETE | `/api/authors/{id}` | Delete an author (cascades to books) |
+| POST | `/api/authors/{authorId}/books` | Create a book for a specific author |
+| GET | `/api/authors/{authorId}/books` | Get all books for a specific author |
+| GET | `/api/authors/{authorId}/books/{bookId}` | Get a specific book for an author |
+| PUT | `/api/authors/{authorId}/books/{bookId}` | Update a book for an author |
+| DELETE | `/api/authors/{authorId}/books/{bookId}` | Delete a book for an author |
 
 ### Books Controller (`/api/books`)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/books` | Get all books |
+| GET | `/api/books` | Get all books with author information |
 | GET | `/api/books/{id}` | Get a specific book by ID |
-| POST | `/api/books` | Create a new book |
+| POST | `/api/books` | Create a new book (requires authorId) |
 | PUT | `/api/books/{id}` | Update an existing book |
 | DELETE | `/api/books/{id}` | Delete a book |
+
+### Author Model
+
+```csharp
+{
+    "id": 1,
+    "name": "J.K. Rowling",
+    "bio": "British author best known for the Harry Potter series",
+    "dateOfBirth": "1965-07-31T00:00:00",
+    "books": [...]
+}
+```
 
 ### Book Model
 
 ```csharp
 {
     "id": 1,
-    "title": "Book Title",
-    "author": "Author Name",
-    "publishDate": "2025-11-02T00:00:00"
+    "title": "Harry Potter and the Philosopher's Stone",
+    "publishDate": "1997-06-26T00:00:00",
+    "authorId": 1,
+    "author": {
+        "id": 1,
+        "name": "J.K. Rowling",
+        ...
+    }
 }
 ```
 
@@ -106,10 +144,20 @@ BookApi/
 
 5. **Access the Application**
    - **Blazor UI**: `https://localhost:5001` (or the port shown in terminal)
-   - **API**: `https://localhost:5001/api/books`
+   - **API (Books)**: `https://localhost:5001/api/books`
+   - **API (Authors)**: `https://localhost:5001/api/authors`
    - **Swagger**: `https://localhost:5001/swagger` (Development mode only)
 
 ## 📊 Database Schema
+
+### Authors Table
+
+| Column | Type | Description |
+|--------|------|-------------|
+| Id | INT | Primary Key (Auto-increment) |
+| Name | VARCHAR | Author's full name |
+| Bio | TEXT | Author's biography |
+| DateOfBirth | DATETIME | Author's date of birth |
 
 ### Books Table
 
@@ -117,8 +165,14 @@ BookApi/
 |--------|------|-------------|
 | Id | INT | Primary Key (Auto-increment) |
 | Title | VARCHAR | Book title |
-| Author | VARCHAR | Book author |
 | PublishDate | DATETIME | Publication date |
+| AuthorId | INT | Foreign Key to Authors table |
+
+### Relationships
+
+- **One-to-Many**: One Author can have many Books
+- **Cascade Delete**: Deleting an author will automatically delete all their books
+- **Foreign Key Constraint**: Books.AuthorId references Authors.Id
 
 ## 🧪 Testing the API
 
@@ -127,19 +181,50 @@ Navigate to `https://localhost:5001/swagger` to interact with the API through th
 
 ### Using cURL
 
+**Create an author:**
+```bash
+curl -X POST https://localhost:5001/api/authors \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "George Orwell",
+    "bio": "English novelist and essayist",
+    "dateOfBirth": "1903-06-25"
+  }'
+```
+
+**Get all authors:**
+```bash
+curl -X GET https://localhost:5001/api/authors
+```
+
+**Create a book for an author:**
+```bash
+curl -X POST https://localhost:5001/api/authors/1/books \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "1984",
+    "publishDate": "1949-06-08"
+  }'
+```
+
 **Get all books:**
 ```bash
 curl -X GET https://localhost:5001/api/books
 ```
 
-**Create a new book:**
+**Get books for a specific author:**
+```bash
+curl -X GET https://localhost:5001/api/authors/1/books
+```
+  -H "Content-Type: application/json" \
+**Create a book directly (with authorId):**
 ```bash
 curl -X POST https://localhost:5001/api/books \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "Clean Code",
-    "author": "Robert C. Martin",
-    "publishDate": "2008-08-01"
+    "title": "Animal Farm",
+    "authorId": 1,
+    "publishDate": "1945-08-17"
   }'
 ```
 
@@ -149,9 +234,9 @@ curl -X PUT https://localhost:5001/api/books/1 \
   -H "Content-Type: application/json" \
   -d '{
     "id": 1,
-    "title": "Clean Code - Updated",
-    "author": "Robert C. Martin",
-    "publishDate": "2008-08-01"
+    "title": "1984 - Updated Edition",
+    "authorId": 1,
+    "publishDate": "1949-06-08"
   }'
 ```
 
@@ -159,6 +244,13 @@ curl -X PUT https://localhost:5001/api/books/1 \
 ```bash
 curl -X DELETE https://localhost:5001/api/books/1
 ```
+
+**Delete an author (and all their books):**
+```bash
+curl -X DELETE https://localhost:5001/api/authors/1
+```
+
+> **Note**: For complete API documentation with all endpoints and examples, see [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
 
 ## 🔧 Development
 
@@ -196,11 +288,21 @@ dotnet publish -c Release -o ./publish
 - Database migrations
 - Async/await pattern
 - LINQ query support
+- Navigation properties
+- One-to-many relationships
+- Cascade delete support
 
 ### 4. **API Documentation**
 - Auto-generated Swagger documentation
 - Interactive API testing interface
 - OpenAPI specification
+- Comprehensive endpoint documentation
+
+### 5. **Database Relationships**
+- One-to-many relationship between Authors and Books
+- Foreign key constraints
+- Cascade delete operations
+- Navigation properties for easy data access
 
 ## 📝 Configuration
 
