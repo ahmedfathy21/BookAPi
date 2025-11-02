@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookApi.Data;
 using BookApi.Models;
+using BookApi.DTOs;
 
 namespace BookApi.Controllers
 {
@@ -92,7 +93,7 @@ namespace BookApi.Controllers
 
         // POST: api/authors/{authorId}/books
         [HttpPost("{authorId}/books")]
-        public async Task<ActionResult<Book>> CreateBookForAuthor(int authorId, Book book)
+        public async Task<ActionResult<Book>> CreateBookForAuthor(int authorId, CreateBookDto bookDto)
         {
             // Check if author exists
             var author = await _context.Authors.FindAsync(authorId);
@@ -102,8 +103,13 @@ namespace BookApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Set the AuthorId
-            book.AuthorId = authorId;
+            // Create the book entity from DTO
+            var book = new Book
+            {
+                Title = bookDto.Title,
+                PublishDate = bookDto.PublishDate,
+                AuthorId = authorId
+            };
 
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
@@ -152,18 +158,12 @@ namespace BookApi.Controllers
 
         // PUT: api/authors/{authorId}/books/{bookId}
         [HttpPut("{authorId}/books/{bookId}")]
-        public async Task<IActionResult> UpdateBookForAuthor(int authorId, int bookId, Book book)
+        public async Task<IActionResult> UpdateBookForAuthor(int authorId, int bookId, UpdateBookDto bookDto)
         {
             // Check if author exists
             var authorExists = await _context.Authors.AnyAsync(a => a.Id == authorId);
             if (!authorExists)
                 return NotFound(new { message = "Author not found" });
-
-            if (bookId != book.Id)
-                return BadRequest(new { message = "Book ID mismatch" });
-
-            if (authorId != book.AuthorId)
-                return BadRequest(new { message = "Author ID mismatch" });
 
             // Check if book exists and belongs to this author
             var existingBook = await _context.Books
@@ -172,7 +172,9 @@ namespace BookApi.Controllers
             if (existingBook == null)
                 return NotFound(new { message = "Book not found for this author" });
 
-            _context.Entry(book).State = EntityState.Modified;
+            // Update the existing book
+            existingBook.Title = bookDto.Title;
+            existingBook.PublishDate = bookDto.PublishDate;
 
             try
             {
