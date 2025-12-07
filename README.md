@@ -1,9 +1,10 @@
 # BookAPI 📚
 
-A full-stack web application built with **ASP.NET Core 9.0** that combines a RESTful API for book management with an interactive Blazor Server UI.
+A full-stack web application built with **ASP.NET Core 9.0** that combines a RESTful API for book management with an interactive Blazor Server UI. Features **JWT authentication** to secure all API endpoints.
 
 ## 🌟 Key Features
 
+- **🔐 JWT Authentication** - Secure token-based authentication with ASP.NET Core Identity
 - **RESTful API** - Complete CRUD operations for books and authors management
 - **Author-Book Relationship** - One-to-many relationship with cascade delete
 - **Nested Resources** - Manage books under specific authors
@@ -16,38 +17,123 @@ A full-stack web application built with **ASP.NET Core 9.0** that combines a RES
 ## 🛠️ Technology Stack
 
 - **Framework**: ASP.NET Core 9.0
+- **Authentication**: ASP.NET Core Identity + JWT Bearer tokens
 - **Frontend**: Blazor Server Components
 - **ORM**: Entity Framework Core 9.0
 - **Database**: MySQL 8.0
 - **API Documentation**: Swagger UI (Swashbuckle.AspNetCore 9.0.6)
 - **Database Provider**: Pomelo.EntityFrameworkCore.MySql 9.0.0
+- **Security**: System.IdentityModel.Tokens.Jwt 8.0.1
 
 ## 📋 Project Structure
 
 ```
 BookApi/
 ├── Controllers/
-│   ├── BooksController.cs          # Books API endpoints
-│   └── AuthorsController.cs        # Authors API endpoints
+│   ├── BooksController.cs          # Books API endpoints (Protected)
+│   ├── AuthorsController.cs        # Authors API endpoints (Protected)
+│   └── AuthController.cs           # Authentication endpoints (Register/Login)
 ├── Models/
 │   ├── Book.cs                     # Book entity model
-│   └── Author.cs                   # Author entity model
+│   ├── Author.cs                   # Author entity model
+│   └── ApplicationUser.cs          # Custom user model (extends IdentityUser)
+├── DTOs/
+│   ├── CreateBookDto.cs            # DTO for creating books
+│   ├── UpdateBookDto.cs            # DTO for updating books
+│   ├── RegisterDto.cs              # DTO for user registration
+│   ├── LoginDto.cs                 # DTO for user login
+│   └── AuthResponseDto.cs          # DTO for authentication response
 ├── Data/
-│   └── BookContext.cs              # Entity Framework DbContext
+│   └── BookContext.cs              # Entity Framework IdentityDbContext
 ├── Migrations/                     # EF Core database migrations
 ├── Components/
 │   ├── Pages/                      # Blazor pages
 │   └── Layout/                     # Blazor layout components
 ├── wwwroot/                        # Static files
-├── Program.cs                      # Application entry point
-├── appsettings.json               # Configuration
+├── Program.cs                      # Application entry point (with JWT config)
+├── appsettings.json               # Configuration (JWT settings)
 ├── README.md                       # Project documentation
-└── API_DOCUMENTATION.md           # Detailed API documentation
+├── API_DOCUMENTATION.md           # Detailed API documentation
+├── BookAPI_Postman_Collection.json      # Postman collection (full)
+└── BookAPI_Auth_Quick_Test.json         # Quick auth test collection
 ```
 
-## 🚀 API Endpoints
+## � Authentication System
 
-### Authors Controller (`/api/authors`)
+All API endpoints (Books and Authors) are protected and require authentication using JWT (JSON Web Tokens).
+
+### Authentication Endpoints (`/api/auth`)
+
+| Method | Endpoint | Description | Authentication Required |
+|--------|----------|-------------|------------------------|
+| POST | `/api/auth/register` | Register a new user | ❌ No |
+| POST | `/api/auth/login` | Login and receive JWT token | ❌ No |
+
+### How Authentication Works
+
+1. **Register** a new user account
+2. **Login** to receive a JWT token (valid for 24 hours)
+3. **Include the token** in the `Authorization` header for all subsequent requests
+4. **Token Format**: `Authorization: Bearer <your-jwt-token>`
+
+### Example Usage
+
+#### 1. Register a New User
+
+```bash
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "Password123",
+  "fullName": "John Doe"
+}
+```
+
+**Response:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "email": "user@example.com",
+  "expiration": "2025-12-08T00:24:44Z"
+}
+```
+
+#### 2. Login
+
+```bash
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "Password123"
+}
+```
+
+**Response:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "email": "user@example.com",
+  "expiration": "2025-12-08T00:24:56Z"
+}
+```
+
+#### 3. Access Protected Endpoints
+
+```bash
+GET /api/authors
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Without token:** ❌ Returns `401 Unauthorized`  
+**With valid token:** ✅ Returns `200 OK` with data
+
+## �🚀 API Endpoints
+
+### Authors Controller (`/api/authors`) 🔒 **Protected**
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -62,7 +148,9 @@ BookApi/
 | PUT | `/api/authors/{authorId}/books/{bookId}` | Update a book for an author |
 | DELETE | `/api/authors/{authorId}/books/{bookId}` | Delete a book for an author |
 
-### Books Controller (`/api/books`)
+> **Note:** All endpoints require a valid JWT token in the Authorization header
+
+### Books Controller (`/api/books`) 🔒 **Protected**
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -71,6 +159,8 @@ BookApi/
 | POST | `/api/books` | Create a new book (requires authorId) |
 | PUT | `/api/books/{id}` | Update an existing book |
 | DELETE | `/api/books/{id}` | Delete a book |
+
+> **Note:** All endpoints require a valid JWT token in the Authorization header
 
 ### Author Model
 
