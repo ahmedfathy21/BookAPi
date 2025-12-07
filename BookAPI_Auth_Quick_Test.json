@@ -1,0 +1,192 @@
+{
+	"info": {
+		"_postman_id": "bookapi-auth-test-2025",
+		"name": "BookAPI - Quick Authentication Test",
+		"description": "Quick test collection for authentication endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5207"
+		},
+		{
+			"key": "token",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "1. Register User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    const response = pm.response.json();",
+							"    pm.collectionVariables.set('token', response.token);",
+							"    console.log('✅ Token saved:', response.token.substring(0, 20) + '...');",
+							"    console.log('✅ Registration successful');",
+							"} else {",
+							"    console.log('❌ Registration failed');",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"Test123456\",\n  \"fullName\": \"Test User\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/register",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "register"]
+				}
+			}
+		},
+		{
+			"name": "2. Login User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    const response = pm.response.json();",
+							"    pm.collectionVariables.set('token', response.token);",
+							"    console.log('✅ Token saved:', response.token.substring(0, 20) + '...');",
+							"    console.log('✅ Login successful');",
+							"} else {",
+							"    console.log('❌ Login failed');",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"Test123456\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/login",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "login"]
+				}
+			}
+		},
+		{
+			"name": "3. Create Author (Protected)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 201) {",
+							"    const response = pm.response.json();",
+							"    pm.collectionVariables.set('authorId', response.id);",
+							"    console.log('✅ Author created with ID:', response.id);",
+							"} else if (pm.response.code === 401) {",
+							"    console.log('❌ Unauthorized - Please login first');",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Test Author\",\n  \"bio\": \"This is a test author\",\n  \"dateOfBirth\": \"1980-01-01T00:00:00\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/authors",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "authors"]
+				}
+			}
+		},
+		{
+			"name": "4. Get All Authors (Protected)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/authors",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "authors"]
+				}
+			}
+		},
+		{
+			"name": "5. Test Without Token (Should Fail)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 401) {",
+							"    console.log('✅ Correctly blocked unauthorized access');",
+							"} else {",
+							"    console.log('❌ Security issue: Request should have been blocked');",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/authors",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "authors"]
+				}
+			}
+		}
+	]
+}
